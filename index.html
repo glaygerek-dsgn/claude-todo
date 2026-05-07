@@ -211,6 +211,25 @@
   let pendingPassword = '';
 
   // ── Auth API ──────────────────────────────────────────────
+  const ERR_TR = {
+    'Invalid login credentials':          'E-posta veya şifre hatalı.',
+    'Email not confirmed':                 'E-posta adresin henüz doğrulanmamış.',
+    'User already registered':             'Bu e-posta adresi zaten kayıtlı.',
+    'Password should be at least 6 characters': 'Şifre en az 6 karakter olmalıdır.',
+    'Token has expired or is invalid':     'Kod geçersiz veya süresi dolmuş.',
+    'Email address is invalid':            'Geçersiz e-posta adresi.',
+    'Signup is disabled':                  'Kayıt şu an devre dışı.',
+    'Email rate limit exceeded':           'Çok fazla deneme yaptın, biraz bekle.',
+    'over_email_send_rate_limit':          'Çok fazla e-posta gönderildi, biraz bekle.',
+  };
+
+  function trErr(msg) {
+    for (const [en, tr] of Object.entries(ERR_TR)) {
+      if (msg && msg.toLowerCase().includes(en.toLowerCase())) return tr;
+    }
+    return msg || 'Beklenmeyen bir hata oluştu.';
+  }
+
   async function authFetch(path, body) {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
       method: 'POST',
@@ -218,7 +237,7 @@
       body: JSON.stringify(body)
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.msg || data.message || data.error_description || 'Hata oluştu');
+    if (!res.ok) throw new Error(trErr(data.msg || data.message || data.error_description));
     return data;
   }
 
